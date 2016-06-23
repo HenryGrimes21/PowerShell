@@ -1,0 +1,35 @@
+#Get Number of Columns in a CSV File
+
+Description: This script will look in a directory and look at all the CSV files that meet a certain criteria and then create a CSV file 
+that gives the number of columns in each file, delimited by a comma ",".
+
+
+######Get List of Excel Files in a specific path (folder)
+$files = Get-childitem -path "C:\Desktop" -filter "P*.csv" 
+$files
+
+######Clear Arrary
+$outarray = @()
+
+######Find Sheets in each Excel File
+ForEach ($file in $files)
+{
+$file2 = "C:\Desktop" + $file
+$CSVFile = Get-Content $file2
+$Columns = ($CSVFile[0].split(",")).Count
+$Columns
+$outarray += New-Object PsObject -Property @{
+    'File' = $file
+    'Columns' = $Columns  
+    }
+}
+
+$outarray
+
+
+######Remove .csv file
+Remove-Item C:\Desktop\Test.csv
+
+######export to .csv file
+$outarray | export-csv C:\Desktop\Test.csv
+

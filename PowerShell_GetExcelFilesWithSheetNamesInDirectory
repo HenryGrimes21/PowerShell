@@ -1,0 +1,37 @@
+#PowerShell to Get a List of Excel Files and their Sheet Names for each WorkSheet in a designated directory
+
+Description: This script will look for excel files (.xlsx) and output a CSV file that has a list of all the excel files along with the 
+sheet names for each file.
+
+#######Get List of Excel Files in a specific path (folder)
+$files = Get-childitem -path "C:\Desktop\" -filter "*.xlsx"
+$files
+
+#######Clear Arrary
+$outarray = @()
+
+#######Find Sheets in each Excel File
+ForEach ($file in $files)
+{
+$Excel = New-Object -comobject Excel.Application
+$TestFile = "C:\Desktop\"
+$TestFile += $file
+$Workbook = $Excel.Workbooks.open($TestFile) 
+$WorkSheet = $Workbook.sheets | Select-Object -Property Name
+$File = $File | Select-Object -Property Name
+    ForEach($Sheet in $WorkSheet) {
+        $outarray += New-Object PsObject -Property @{
+            'File' = $File 
+            'WorkSheet' = $Sheet
+        }
+    }
+$Excel.Quit()
+[System.Runtime.Interopservices.Marshal]::ReleaseComObject($Excel)
+}
+
+#######Remove .csv file
+Remove-Item C:\Desktop\ExcelInformation.csv
+
+#######export to .csv file
+$outarray | export-csv C:\Desktop\ExcelInformation.csv
+
